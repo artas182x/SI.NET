@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace demo
 {
@@ -34,7 +37,6 @@ namespace demo
             services.AddControllers().AddNewtonsoftJson();
             services.AddControllers().AddXmlSerializerFormatters();
 
-            services.AddSwaggerGen();
             
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             // services.AddSingleton<IActionSelector, CustomActionSelector>();
@@ -45,9 +47,10 @@ namespace demo
 
             services.AddMvc( options => {
                 options.Conventions.Add(new ControllerNameAttributeConvention());
-                
+
                 options.CacheProfiles.Add("si.net", new Microsoft.AspNetCore.Mvc.CacheProfile {
                     Duration = 60
+                    
                 });
             });
 
@@ -55,14 +58,16 @@ namespace demo
                 options.ReportApiVersions = true;
                 options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
                 options.AssumeDefaultVersionWhenUnspecified = true;
-                // options.ApiVersionReader = new QueryStringApiVersionReader("api-ver");
-                options.ApiVersionReader = new HeaderApiVersionReader("api-ver");
+                options.ApiVersionReader = new QueryStringApiVersionReader("api-ver");
+               // options.ApiVersionReader = new HeaderApiVersionReader("api-ver");
                 // options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(2, 0);
             });
+
 
             services.AddVersionedApiExplorer(o =>
             {
                 o.GroupNameFormat = "'v'VVV";
+                o.SubstituteApiVersionInUrl = true;
             });
 
             // cache odpowiedzi
@@ -70,10 +75,13 @@ namespace demo
                 options.MaximumBodySize *= 2;
                 options.UseCaseSensitivePaths = true;
             });
+
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
 
             app.UseSwagger();
@@ -91,10 +99,20 @@ namespace demo
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-                app.UseSwaggerUI(options => {
+            app.UseSwaggerUI(
+                options =>
+                {
+                    // build a swagger endpoint for each discovered API version
+                    foreach ( var description in provider.ApiVersionDescriptions )
+                    {
+                        options.SwaggerEndpoint( $"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant() );
+                    }
+                } );
+
+          /*  app.UseSwaggerUI(options => {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "SI.NET API v1");
             });
-
+*/
             app.UseRouting();
 
             app.UseResponseCaching(); // Hubert, lukasz mrugala, patryk poblocki, Dawid Wesołowski

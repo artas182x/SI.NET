@@ -5,6 +5,7 @@ namespace demo.Controllers
 {
     [ApiController]
     [Route("cache")]
+    [ApiVersion("2.0")]
     public class CacheController : Controller 
     {
         [HttpGet("get-time")]
