@@ -30,10 +30,12 @@ namespace demo
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            
+
             services.AddControllers().AddNewtonsoftJson();
             services.AddControllers().AddXmlSerializerFormatters();
 
+            services.AddSwaggerGen();
+            
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             // services.AddSingleton<IActionSelector, CustomActionSelector>();
 
@@ -43,7 +45,7 @@ namespace demo
 
             services.AddMvc( options => {
                 options.Conventions.Add(new ControllerNameAttributeConvention());
-
+                
                 options.CacheProfiles.Add("si.net", new Microsoft.AspNetCore.Mvc.CacheProfile {
                     Duration = 60
                 });
@@ -51,9 +53,16 @@ namespace demo
 
             services.AddApiVersioning(options => {
                 options.ReportApiVersions = true;
+                options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+                options.AssumeDefaultVersionWhenUnspecified = true;
                 // options.ApiVersionReader = new QueryStringApiVersionReader("api-ver");
                 options.ApiVersionReader = new HeaderApiVersionReader("api-ver");
                 // options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(2, 0);
+            });
+
+            services.AddVersionedApiExplorer(o =>
+            {
+                o.GroupNameFormat = "'v'VVV";
             });
 
             // cache odpowiedzi
@@ -61,22 +70,18 @@ namespace demo
                 options.MaximumBodySize *= 2;
                 options.UseCaseSensitivePaths = true;
             });
-
-            /*
-            services.AddSwaggerGen( c => {
-                c.SwaggerDoc("v1");
-            }); 
-            */
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            app.UseSwagger();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();  // stacktrace
-            }   
+            }
             else
             {
                 app.UseExceptionHandler("/Home/Error"); // 4xx, 5xx
@@ -85,6 +90,10 @@ namespace demo
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+                app.UseSwaggerUI(options => {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "SI.NET API v1");
+            });
 
             app.UseRouting();
 
@@ -99,14 +108,11 @@ namespace demo
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-                
+
             });
 
-            /*
-            app.UseSwagger();
-            app.UseSwaggerUI(options => {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "SI.NET API v1");
-            }); */
+
+
         }
     }
 }

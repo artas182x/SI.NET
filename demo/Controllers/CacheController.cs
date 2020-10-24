@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace demo.Controllers
 {
+    [ApiController]
     [Route("cache")]
     public class CacheController : Controller 
     {
