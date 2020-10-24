@@ -115,6 +115,15 @@ namespace demo
 */
             app.UseRouting();
 
+            app.Use(async (context, next) =>
+            {
+                var val = context.Request.Headers["cache-control"];
+                if (!string.IsNullOrEmpty(val) && val.Equals("max-age=0")) {
+                    context.Request.Headers.Remove("cache-control");
+                }
+              await next();
+            });
+
             app.UseResponseCaching(); // Hubert, lukasz mrugala, patryk poblocki, Dawid Wesołowski
 
             app.UseAuthorization();     // odcinal ze wzgleud na uprawnienia
