@@ -19,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace demo
 {
@@ -34,6 +35,13 @@ namespace demo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders =
+                    ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
             services.AddControllersWithViews();
             
             services.AddControllers().AddNewtonsoftJson();
@@ -81,8 +89,10 @@ namespace demo
             }); 
             */
 
+            string db_password = Environment.GetEnvironmentVariable("SA_PASSWORD");
+
             services.AddDistributedSqlServerCache(options => {
-                options.ConnectionString = @"Data Source=localhost;Initial Catalog=DistCache;User Id=sa; Password=STRONGpassword123;";
+                options.ConnectionString = $@"Data Source=db;Initial Catalog=DistCache;User Id=sa; Password={db_password};";
                 options.SchemaName = "dbo";
                 options.TableName = "TestCache";
 
@@ -134,6 +144,7 @@ namespace demo
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();  // stacktrace
@@ -144,7 +155,7 @@ namespace demo
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+           // app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();

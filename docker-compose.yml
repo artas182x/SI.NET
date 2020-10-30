@@ -1,0 +1,44 @@
+version: "3"
+
+services:
+
+  nginx:
+    build: ./nginx
+    restart: on-failure:3
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - dotnet_service
+    networks:
+      - app_network
+
+  dotnet_service:
+    build: ./demo
+    restart: on-failure:3
+    depends_on:
+      - db
+    env_file:
+      - db_creds.env
+    networks:
+      - app_network
+      - internal_db
+
+  db:
+    build: ./sql_server
+    restart: on-failure:3
+    volumes:
+      - mssql-server-linux-data:/var/opt/mssql/data
+    env_file:
+      - db_creds.env
+    environment:
+      - ACCEPT_EULA="Y"
+    networks:
+      - internal_db
+
+networks:
+  app_network:
+  internal_db:
+
+volumes:
+  mssql-server-linux-data:

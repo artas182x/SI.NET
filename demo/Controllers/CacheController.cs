@@ -32,7 +32,7 @@ namespace demo.Controllers
         [HttpGet("set-time-distributed-sql")]
         public string SetTimeWithIDistributedCache([FromServices] IDistributedCache cache) {
             var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(5));
-            // options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(20));
+            options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(20));
             DateTime time = DateTime.Now;
             cache.Set("time", Encoding.ASCII.GetBytes(time.ToString()), options);
             return "Ustawiłem wartość cache";
@@ -42,7 +42,10 @@ namespace demo.Controllers
         public string GetTimeWithIDistributedCache([FromServices] IDistributedCache cache) {
             byte[] tab = cache.Get("time");
             if(tab == null) { return "Nie udało się pobać wartości time";} 
-            return Encoding.ASCII.GetString(tab);
+
+            // Mala modyfikacja:
+            // Zwrocenie nazwy hosta, aby bylo wiadomo skad przyszła odpowiedz
+            return "Host: " + Environment.MachineName + "\n" + Encoding.ASCII.GetString(tab);
         }
 
         [HttpGet("set-temp")]
