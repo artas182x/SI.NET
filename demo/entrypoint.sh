@@ -1,8 +1,15 @@
 #!/bin/sh
 # dotnet tool install --global dotnet-sql-cache
 
-sleep 5;
-/root/.dotnet/tools/dotnet-sql-cache create "Data Source=db;Initial Catalog=DistCache;User Id=sa; Password=$SA_PASSWORD;" dbo TestCache
+run_cmd="dotnet run --server.urls http://*:5000"
 
-dotnet demo.dll
+until /root/.dotnet/tools/dotnet-ef database update; do
+>&2 echo "SQL Server is starting up"
+sleep 1
+done
+
+/root/.dotnet/tools/dotnet-sql-cache create "Data Source=db;Initial Catalog=DistCache;User Id=sa; Password=$SA_PASSWORD;" dbo TestCache
+# /root/.dotnet/tools/dotnet-ef database update
+
+exec $run_cmd
 

@@ -102,6 +102,7 @@ namespace demo
 
             // services.AddSingleton<ITempDataProvider, CookieTempDataProvider>();
             // services.AddSingleton<ITempDataProvider, SessionStateTempDataProvider>();
+            services.AddSingleton<ITempDataProvider, DBTempDataProvider>();
 
             // .resx
             services.AddLocalization(options => {
