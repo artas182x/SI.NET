@@ -24,6 +24,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Web;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace demo
 {
@@ -70,7 +71,7 @@ namespace demo
             .AddViewLocalization()  // 
             .AddDataAnnotationsLocalization()   // 
             .AddRazorOptions(options => {
-                options.ViewLocationFormats.Add("/ExternalViews/{0}.cshtml");
+                options.ViewLocationFormats.Add("/ExternalViews/{0}" + RazorViewEngine.ViewExtension);
                 options.ViewLocationExpanders.Add(new ThemesViewLocationExpander("MojLayout"));
             });
 
