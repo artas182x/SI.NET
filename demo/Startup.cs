@@ -20,6 +20,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Http.Extensions;
+using System.Web;
+using Microsoft.AspNetCore.Rewrite;
 
 namespace demo
 {
@@ -168,6 +172,11 @@ namespace demo
 
             app.UseAuthorization();     // odcinal ze wzgleud na uprawnienia
             app.UseSession();
+
+            
+             app.UseRewriter(new RewriteOptions()
+                .Add(RewriteRules.RedirectRequests)
+            );
 
             // app.UseResponseCaching();   // Dominik Kubiaczyk, Mateusz buchajewicz
 
