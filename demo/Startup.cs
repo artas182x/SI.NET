@@ -123,12 +123,13 @@ namespace demo
                 
             };
 
-            services.Configure<RequestLocalizationOptions>(options => {
+           services.Configure<RequestLocalizationOptions>(options => {
                 options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(supportedCutltures.First().Name, supportedCutltures.First().Name);
                 options.SupportedCultures = supportedCutltures;
                 options.SupportedUICultures = supportedCutltures;
                 options.RequestCultureProviders = new[] {
-                       new QueryStringRequestCultureProvider {QueryStringKey = "culture", Options = options} 
+                    new RouteDataRequestCultureProvider { RouteDataStringKey = "language" }
+                   //    new QueryStringRequestCultureProvider {QueryStringKey = "culture", Options = options} 
                 };
             });
             /*
@@ -140,9 +141,6 @@ namespace demo
             */
 
             
-            /*
-                new RouteDataRequestCultureProvider { RouteDataStringKey = "language" } // poszukać
-            */
             
         }
 
@@ -163,9 +161,6 @@ namespace demo
            // app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
-            app.UseRequestLocalization(options.Value);
-
             app.UseRouting();
 
             app.UseResponseCaching(); // Hubert, lukasz mrugala, patryk poblocki, Dawid Wesołowski
@@ -173,11 +168,13 @@ namespace demo
             app.UseAuthorization();     // odcinal ze wzgleud na uprawnienia
             app.UseSession();
 
-            
+            var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(options.Value);
+
              app.UseRewriter(new RewriteOptions()
                 .Add(RewriteRules.RedirectRequests)
             );
-
+            
             // app.UseResponseCaching();   // Dominik Kubiaczyk, Mateusz buchajewicz
 
             app.UseEndpoints(endpoints =>
