@@ -8,7 +8,7 @@
 <h2>Test walidatorów</h2>
 
 <form asp-action="Submit"
-      method="post" class="g-brd-around g-brd-gray-light-v4 g-pa-30 g-mb-30" enctype="multipart/form-data">
+      method="post" class="g-brd-around g-brd-gray-light-v4 g-pa-30 g-mb-30" enctype="multipart/form-data" onsubmit="AJAXSubmit(this);return false;" >
     
     <div>
         <span asp-validation-summary></span>
@@ -70,12 +70,33 @@
     
     <div class="form-group g-mb-25">
         <label asp-for="File"></label>
-        <input asp-for="File" class="form-control rounded-0 form-control-md" />
+        <input asp-for="File" class="form-control rounded-0 form-control-md" multiple />
         <span asp-validation-for="File"></span>
     </div>
     
     
     
     <input type="submit"/>
+    <p id="uploadStatus"></p>
 </form>
+
+<script>
+  async function AJAXSubmit (oFormElement) {
+    var resultElement = oFormElement.elements.namedItem("result");
+    const formData = new FormData(oFormElement);
+
+    try {
+        document.getElementById("uploadStatus").innerText = "Uploading..."
+        const response = await fetch(oFormElement.action, {
+          method: 'POST',
+          redirect: 'follow',
+          body: formData
+        // Przekierowanie na jakas strone
+        }).then((res) => window.location.assign('/validation'));
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+</script>
+
 

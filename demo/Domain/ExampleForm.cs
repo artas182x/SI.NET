@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using demo.Tools;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace demo.Domain
 {
@@ -48,7 +49,7 @@ namespace demo.Domain
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
         
-        public IFormFile File { get; set; }
+        public List<IFormFile> File { get; set; }
 
         public override string ToString()
         {

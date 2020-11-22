@@ -1,5 +1,8 @@
+using System.IO;
+using System.Threading.Tasks;
 using demo.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 
 namespace demo.Controllers
 {
@@ -14,20 +17,28 @@ namespace demo.Controllers
 
         [Route("submit")]
         [HttpPost]
-        public IActionResult Submit(ExampleForm form)
+        public async Task<IActionResult> Submit(ExampleForm form)
         {
             if (!ModelState.IsValid)
             {
                 return View(viewName: "Index", form);
             }
-
-            if (form.File != null)
+         
+            var path = Path.GetTempPath();
+            
+            foreach (var file in form.File)
             {
-                System.Console.WriteLine($"Wielkość pliku {form.File.Length}");
-                System.Console.WriteLine($"Nazwa pliku {form.File.Name}");
+                if (file == null) continue;
+                var fileName = file.Name;
+                var fullPath = Path.Combine(path, fileName);
+                await using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);     // zapis 
+                }
+                System.Console.WriteLine($"Wielkość pliku {file.Length}");
+                System.Console.WriteLine($"Nazwa pliku {file.Name}");
             }
-            // zapis 
-
+        
             return RedirectToAction(nameof(Index));
         }
 

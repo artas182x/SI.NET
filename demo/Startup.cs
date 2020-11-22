@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -56,6 +57,12 @@ namespace demo
                 // ViewLocationExpanders - ekspandery lokalizacji widoków
                 // ViewLocationFormats - lokalizacje wyszukiwania widoków
             });*/
+            
+            // Zwiekszenie maksymalnego rozmiaru zapytania, aby lepiej pokazac asynchronicznosc
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.Limits.MaxRequestBodySize = int.MaxValue;
+            });
             
             services.AddControllers().AddNewtonsoftJson();
             services.AddControllers().AddXmlSerializerFormatters();
