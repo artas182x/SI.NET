@@ -37,8 +37,9 @@ namespace demo2.Controllers
 
 		[HttpGet]
 		[Route("/logowanie")]
-		public async Task<IActionResult> Login()
+		public async Task<IActionResult> Login([FromQuery] string returnUrl)
 		{
+			ViewBag.returnUrl = returnUrl;
 			return await Task.Run(() => View());
 		}
 		
@@ -52,13 +53,16 @@ namespace demo2.Controllers
 		[HttpPost]
 		[AllowAnonymous]
 		[Route("/logowanie")]
-		public async Task<IActionResult> Login(string username, string password)
+		public async Task<IActionResult> Login(string username, string password, [FromForm] string returnUrl)
 		{
 			var result = await this._signInManager.PasswordSignInAsync(username, password, isPersistent: true,
 				lockoutOnFailure: false);
-
+			
 			if (result.Succeeded)
 			{
+				if (returnUrl != null)
+					return Redirect(returnUrl);
+				
 				return RedirectToAction(controllerName: "Home", actionName: "Index");
 			} else if (result.IsLockedOut)
 			{

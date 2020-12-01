@@ -66,6 +66,7 @@ namespace demo2
                                                     options.Cookie.HttpOnly = true;
                                                     options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
                                                     options.LoginPath = "/logowanie";
+                                                    options.ReturnUrlParameter = "returnUrl";
                                                     options.AccessDeniedPath = "/nieudane-logowanie";
                                                     options.SlidingExpiration = true;
                                                 });
@@ -84,6 +85,7 @@ namespace demo2
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
                 options.LoginPath = "/logowanie";
                 options.AccessDeniedPath = "/nieudane-logowanie";
+                options.ReturnUrlParameter = "returnUrl";
                 options.SlidingExpiration = true;
             }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
@@ -180,10 +182,12 @@ namespace demo2
             var powerUser = new MyUserAccount()
             {
                 UserName = "someuser",
-                Email = "test@test.pl"
+                Email = "test@test.pl",
+                EmailConfirmed = true,
+                Nickname = "test"
             };
             string userPWD = "p1@P123";
-            var _user = await UserManager.FindByEmailAsync("test@tester.pl");
+            var _user = await UserManager.FindByEmailAsync("test@test.pl");
             if (_user == null)
             {
                 var createPowerUser = await UserManager.CreateAsync(powerUser, userPWD);
@@ -198,7 +202,8 @@ namespace demo2
             var defaultUser = new MyUserAccount
             {
                 UserName =  "default",
-                Email = "xyz@xyz.pl"
+                Email = "xyz@xyz.pl",
+                EmailConfirmed = true
             };
             var _defaultUser = await UserManager.FindByEmailAsync(defaultUser.Email);
             if (_defaultUser == null)
