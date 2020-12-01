@@ -114,8 +114,6 @@ namespace demo2.Controllers
 				new Claim(ClaimTypes.Name, username),
 				new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(DateTime.Now).ToUnixTimeMilliseconds()
 				.ToString()),
-				new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(DateTime.Now.AddDays(1))
-				.ToUnixTimeMilliseconds().ToString()), 
 			};
 			
 			var token = new JwtSecurityToken(new JwtHeader(
@@ -123,8 +121,8 @@ namespace demo2.Controllers
 					new SymmetricSecurityKey(
 						Encoding.UTF8.GetBytes("1234567890123456")),
 					SecurityAlgorithms.HmacSha256)
-			), new JwtPayload(claims));
-
+			), new JwtPayload(null, null, claims, null, DateTime.UtcNow.AddDays(1)));
+			
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 	}
